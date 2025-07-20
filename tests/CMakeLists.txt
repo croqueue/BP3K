@@ -27,6 +27,10 @@ add_executable(
     ubitpacker_tests.cpp
 )
 
+target_compile_options(bitpacker_tests PUBLIC -Wall -Werror -Wextra -pedantic)
+target_compile_options(ibitpacker_tests PUBLIC -Wall -Werror -Wextra -pedantic)
+target_compile_options(ubitpacker_tests PUBLIC -Wall -Werror -Wextra -pedantic)
+
 target_include_directories(bitpacker_tests
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../include
