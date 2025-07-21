@@ -2,7 +2,8 @@
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
-#include "bp3k.h" // <bp3k.h> if installed
+
+#include "bp3k.h"  // <bp3k.h> if installed
 
 // Using ibitpacker for value-type deduction (might as well)
 using upack4x16 = bp3k::ubitpacker<4, 16>;
@@ -10,25 +11,22 @@ using upack4x16 = bp3k::ubitpacker<4, 16>;
 // Fetching the deduced value type
 using T = typename upack4x16::value_type;
 
-inline void print_elements(const upack4x16& bp) noexcept
-{
+inline void print_elements(const upack4x16& bp) noexcept {
   std::printf("%hhu", bp[0]);
 
-  for (std::size_t i = 1; i < 16; ++i)
-    std::printf(" %hhu", bp[i]);
-  
+  for (std::size_t i = 1; i < 16; ++i) std::printf(" %hhu", bp[i]);
+
   std::putc('\n', stdout);
 }
 
-int main(void)
-{
+int main(void) {
   // Default constructor
 
   upack4x16 bp1;
 
   std::printf("bp1: ");
   print_elements(bp1);
-  
+
   // Fill constructor (initializes all 16 elements to 13)
 
   upack4x16 bp2(13);
@@ -61,8 +59,8 @@ int main(void)
 
   // Lexicographic comparison
 
-  bp2 = bp1; // both filled with value_min
-  bp2.back() = upack4x16::value_min + 1; // make bp2 greater
+  bp2 = bp1;                              // both filled with value_min
+  bp2.back() = upack4x16::value_min + 1;  // make bp2 greater
 
   std::cout << "bp1 == bp2: " << std::boolalpha << (bp1 == bp2) << std::endl;
   std::cout << "bp1 < bp2: " << std::boolalpha << (bp1 < bp2) << std::endl;

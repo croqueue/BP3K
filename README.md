@@ -74,7 +74,8 @@ Here's a demonstration of the type's main functionality:
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
-#include "bp3k.h" // <bp3k.h> if installed
+
+#include "bp3k.h"  // <bp3k.h> if installed
 
 // Using ibitpacker for value-type deduction (might as well)
 using ipack6x32 = bp3k::ibitpacker<6, 32>;
@@ -82,24 +83,21 @@ using ipack6x32 = bp3k::ibitpacker<6, 32>;
 // Fetching the deduced value type
 using T = typename ipack6x32::value_type;
 
-inline void print_elements(const ipack6x32& bp) noexcept
-{
+inline void print_elements(const ipack6x32& bp) noexcept {
   std::printf("%hhd", bp[0]);
 
-  for (std::size_t i = 1; i < 32; ++i)
-    std::printf(" %hhd", bp[i]);
-  
+  for (std::size_t i = 1; i < 32; ++i) std::printf(" %hhd", bp[i]);
+
   std::putc('\n', stdout);
 }
 
-int main(void)
-{
+int main(void) {
   // Default constructor
   ipack6x32 bp1;
 
   std::printf("bp1: ");
   print_elements(bp1);
-  
+
   // Fill constructor (initializes all 32 elements to -7)
   ipack6x32 bp2(-7);
 
@@ -131,8 +129,8 @@ int main(void)
 
   // Lexicographic comparison
 
-  bp2 = bp1; // both filled with value_min
-  bp2.back() = ipack6x32::value_min + 1; // make bp2 greater
+  bp2 = bp1;                              // both filled with value_min
+  bp2.back() = ipack6x32::value_min + 1;  // make bp2 greater
 
   std::cout << "bp1 == bp2: " << std::boolalpha << (bp1 == bp2) << std::endl;
   std::cout << "bp1 < bp2: " << std::boolalpha << (bp1 < bp2) << std::endl;
@@ -160,7 +158,8 @@ Here's a demonstration of the type's main functionality:
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
-#include "bp3k.h" // <bp3k.h> if installed
+
+#include "bp3k.h"  // <bp3k.h> if installed
 
 // Using ibitpacker for value-type deduction (might as well)
 using upack4x16 = bp3k::ubitpacker<4, 16>;
@@ -168,25 +167,22 @@ using upack4x16 = bp3k::ubitpacker<4, 16>;
 // Fetching the deduced value type
 using T = typename upack4x16::value_type;
 
-inline void print_elements(const upack4x16& bp) noexcept
-{
+inline void print_elements(const upack4x16& bp) noexcept {
   std::printf("%hhu", bp[0]);
 
-  for (std::size_t i = 1; i < 16; ++i)
-    std::printf(" %hhu", bp[i]);
-  
+  for (std::size_t i = 1; i < 16; ++i) std::printf(" %hhu", bp[i]);
+
   std::putc('\n', stdout);
 }
 
-int main(void)
-{
+int main(void) {
   // Default constructor
 
   upack4x16 bp1;
 
   std::printf("bp1: ");
   print_elements(bp1);
-  
+
   // Fill constructor (initializes all 16 elements to 13)
 
   upack4x16 bp2(13);
@@ -219,8 +215,8 @@ int main(void)
 
   // Lexicographic comparison
 
-  bp2 = bp1; // both filled with value_min
-  bp2.back() = upack4x16::value_min + 1; // make bp2 greater
+  bp2 = bp1;                              // both filled with value_min
+  bp2.back() = upack4x16::value_min + 1;  // make bp2 greater
 
   std::cout << "bp1 == bp2: " << std::boolalpha << (bp1 == bp2) << std::endl;
   std::cout << "bp1 < bp2: " << std::boolalpha << (bp1 < bp2) << std::endl;
@@ -243,7 +239,8 @@ The following demonstrates usage of `bp3k::bitpacker<T, W, N>` with an enumerati
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include "bp3k.h" // <bp3k.h> if installed
+
+#include "bp3k.h"  // <bp3k.h> if installed
 
 enum class ChessPiece : std::int8_t {
   BlackPawn = -6,
@@ -261,49 +258,43 @@ enum class ChessPiece : std::int8_t {
   WhitePawn = 6
 };
 
-inline const char *chesspiece_to_str(ChessPiece p)
-{
-  static const char *lookup_table[13] = {
-    "♟", "♞", "♝", "♜", "♛", "♚",
-    " ",
-    "♔", "♕", "♖", "♗", "♘", "♙"
-  };
+inline const char* chesspiece_to_str(ChessPiece p) {
+  static const char* lookup_table[13] = {"♟", "♞", "♝", "♜", "♛", "♚", " ",
+                                         "♔", "♕", "♖", "♗", "♘", "♙"};
 
   auto i = (int)p + 6;
 
   if (i < 0 || i > 12)
     throw std::invalid_argument("undefined `ChessPiece' enumeration member");
-  
+
   return lookup_table[i];
 }
 
 class ChessBoard final {
   bp3k::bitpacker<ChessPiece, 4, 64> matrix_{};
 
-public:
+ public:
   inline constexpr ChessBoard() noexcept;
   inline ChessPiece operator[](const std::string& pos) const;
   inline void move(const std::string& to, const std::string& from);
-  inline void print(FILE *stream, bool black_view = false) const;
+  inline void print(FILE* stream, bool black_view = false) const;
 };
 
-inline std::size_t pos_to_index(const std::string& pos)
-{
+inline std::size_t pos_to_index(const std::string& pos) {
   if (pos.size() != 2)
     throw std::invalid_argument("pos must match `^[A-Ha-h][1-8]$'");
-  
+
   int non_upper = (int)(pos[0] > 'Z') * 32;
   int column = (int)pos[0] - non_upper - 'A';
   int row = 8 - (pos[1] - '0');
 
   if (column < 0 || column > 7 || row < 0 || row > 7)
     throw std::invalid_argument("pos must match `^[A-Ha-h][1-8]$'");
-  
+
   return (std::size_t)(row * 8 + column);
 }
 
-constexpr ChessBoard::ChessBoard() noexcept
-{
+constexpr ChessBoard::ChessBoard() noexcept {
   this->matrix_[0] = ChessPiece::BlackRook;
   this->matrix_[1] = ChessPiece::BlackKnight;
   this->matrix_[2] = ChessPiece::BlackBishop;
@@ -313,12 +304,11 @@ constexpr ChessBoard::ChessBoard() noexcept
   this->matrix_[6] = ChessPiece::BlackKnight;
   this->matrix_[7] = ChessPiece::BlackRook;
 
-  for (std::size_t i = 8; i < 16; ++i)
-    this->matrix_[i] = ChessPiece::BlackPawn;
+  for (std::size_t i = 8; i < 16; ++i) this->matrix_[i] = ChessPiece::BlackPawn;
 
   for (std::size_t i = 48; i < 56; ++i)
     this->matrix_[i] = ChessPiece::WhitePawn;
-  
+
   this->matrix_[56] = ChessPiece::WhiteRook;
   this->matrix_[57] = ChessPiece::WhiteKnight;
   this->matrix_[58] = ChessPiece::WhiteBishop;
@@ -329,26 +319,23 @@ constexpr ChessBoard::ChessBoard() noexcept
   this->matrix_[63] = ChessPiece::WhiteRook;
 }
 
-ChessPiece ChessBoard::operator[](const std::string& pos) const
-{
+ChessPiece ChessBoard::operator[](const std::string& pos) const {
   auto i = pos_to_index(pos);
   return this->matrix_[i];
 }
 
-void ChessBoard::move(const std::string& to, const std::string& from)
-{
+void ChessBoard::move(const std::string& to, const std::string& from) {
   auto to_i = pos_to_index(to);
   auto from_i = pos_to_index(from);
 
   if (this->matrix_[from_i] == ChessPiece::None)
     throw std::invalid_argument("Cannot move piece from vacant position");
-  
+
   this->matrix_[to_i] = this->matrix_[from_i];
   this->matrix_[from_i] = ChessPiece::None;
 }
 
-void ChessBoard::print(FILE *stream, bool black_view) const
-{
+void ChessBoard::print(FILE* stream, bool black_view) const {
   if (black_view) {
     for (auto r = 7; r >= 0; --r) {
       for (auto c = 7; c >= 0; --c) {
@@ -358,8 +345,7 @@ void ChessBoard::print(FILE *stream, bool black_view) const
 
       std::fputc('\n', stream);
     }
-  }
-  else {
+  } else {
     for (auto r = 0; r < 8; ++r) {
       for (auto c = 0; c < 8; ++c) {
         auto i = r * 8 + c;
@@ -371,8 +357,7 @@ void ChessBoard::print(FILE *stream, bool black_view) const
   }
 }
 
-int main(void)
-{
+int main(void) {
   ChessBoard board;
 
   board.move("e4", "e2");
@@ -381,7 +366,9 @@ int main(void)
   std::cout << "[White Player Perspective]" << std::endl << std::endl;
   board.print(stdout);
 
-  std::cout << std::endl << "[Black Player Perspective]" << std::endl << std::endl;
+  std::cout << std::endl
+            << "[Black Player Perspective]" << std::endl
+            << std::endl;
   board.print(stdout, true);
 }
 ```

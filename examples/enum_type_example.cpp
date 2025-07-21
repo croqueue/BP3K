@@ -4,7 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include "bp3k.h" // <bp3k.h> if installed
+
+#include "bp3k.h"  // <bp3k.h> if installed
 
 enum class ChessPiece : std::int8_t {
   BlackPawn = -6,
@@ -22,49 +23,43 @@ enum class ChessPiece : std::int8_t {
   WhitePawn = 6
 };
 
-inline const char *chesspiece_to_str(ChessPiece p)
-{
-  static const char *lookup_table[13] = {
-    "♟", "♞", "♝", "♜", "♛", "♚",
-    " ",
-    "♔", "♕", "♖", "♗", "♘", "♙"
-  };
+inline const char* chesspiece_to_str(ChessPiece p) {
+  static const char* lookup_table[13] = {"♟", "♞", "♝", "♜", "♛", "♚", " ",
+                                         "♔", "♕", "♖", "♗", "♘", "♙"};
 
   auto i = (int)p + 6;
 
   if (i < 0 || i > 12)
     throw std::invalid_argument("undefined `ChessPiece' enumeration member");
-  
+
   return lookup_table[i];
 }
 
 class ChessBoard final {
   bp3k::bitpacker<ChessPiece, 4, 64> matrix_{};
 
-public:
+ public:
   inline constexpr ChessBoard() noexcept;
   inline ChessPiece operator[](const std::string& pos) const;
   inline void move(const std::string& to, const std::string& from);
-  inline void print(FILE *stream, bool black_view = false) const;
+  inline void print(FILE* stream, bool black_view = false) const;
 };
 
-inline std::size_t pos_to_index(const std::string& pos)
-{
+inline std::size_t pos_to_index(const std::string& pos) {
   if (pos.size() != 2)
     throw std::invalid_argument("pos must match `^[A-Ha-h][1-8]$'");
-  
+
   int non_upper = (int)(pos[0] > 'Z') * 32;
   int column = (int)pos[0] - non_upper - 'A';
   int row = 8 - (pos[1] - '0');
 
   if (column < 0 || column > 7 || row < 0 || row > 7)
     throw std::invalid_argument("pos must match `^[A-Ha-h][1-8]$'");
-  
+
   return (std::size_t)(row * 8 + column);
 }
 
-constexpr ChessBoard::ChessBoard() noexcept
-{
+constexpr ChessBoard::ChessBoard() noexcept {
   this->matrix_[0] = ChessPiece::BlackRook;
   this->matrix_[1] = ChessPiece::BlackKnight;
   this->matrix_[2] = ChessPiece::BlackBishop;
@@ -74,12 +69,11 @@ constexpr ChessBoard::ChessBoard() noexcept
   this->matrix_[6] = ChessPiece::BlackKnight;
   this->matrix_[7] = ChessPiece::BlackRook;
 
-  for (std::size_t i = 8; i < 16; ++i)
-    this->matrix_[i] = ChessPiece::BlackPawn;
+  for (std::size_t i = 8; i < 16; ++i) this->matrix_[i] = ChessPiece::BlackPawn;
 
   for (std::size_t i = 48; i < 56; ++i)
     this->matrix_[i] = ChessPiece::WhitePawn;
-  
+
   this->matrix_[56] = ChessPiece::WhiteRook;
   this->matrix_[57] = ChessPiece::WhiteKnight;
   this->matrix_[58] = ChessPiece::WhiteBishop;
@@ -90,26 +84,23 @@ constexpr ChessBoard::ChessBoard() noexcept
   this->matrix_[63] = ChessPiece::WhiteRook;
 }
 
-ChessPiece ChessBoard::operator[](const std::string& pos) const
-{
+ChessPiece ChessBoard::operator[](const std::string& pos) const {
   auto i = pos_to_index(pos);
   return this->matrix_[i];
 }
 
-void ChessBoard::move(const std::string& to, const std::string& from)
-{
+void ChessBoard::move(const std::string& to, const std::string& from) {
   auto to_i = pos_to_index(to);
   auto from_i = pos_to_index(from);
 
   if (this->matrix_[from_i] == ChessPiece::None)
     throw std::invalid_argument("Cannot move piece from vacant position");
-  
+
   this->matrix_[to_i] = this->matrix_[from_i];
   this->matrix_[from_i] = ChessPiece::None;
 }
 
-void ChessBoard::print(FILE *stream, bool black_view) const
-{
+void ChessBoard::print(FILE* stream, bool black_view) const {
   if (black_view) {
     for (auto r = 7; r >= 0; --r) {
       for (auto c = 7; c >= 0; --c) {
@@ -119,8 +110,7 @@ void ChessBoard::print(FILE *stream, bool black_view) const
 
       std::fputc('\n', stream);
     }
-  }
-  else {
+  } else {
     for (auto r = 0; r < 8; ++r) {
       for (auto c = 0; c < 8; ++c) {
         auto i = r * 8 + c;
@@ -132,8 +122,7 @@ void ChessBoard::print(FILE *stream, bool black_view) const
   }
 }
 
-int main(void)
-{
+int main(void) {
   ChessBoard board;
 
   board.move("e4", "e2");
@@ -142,6 +131,8 @@ int main(void)
   std::cout << "[White Player Perspective]" << std::endl << std::endl;
   board.print(stdout);
 
-  std::cout << std::endl << "[Black Player Perspective]" << std::endl << std::endl;
+  std::cout << std::endl
+            << "[Black Player Perspective]" << std::endl
+            << std::endl;
   board.print(stdout, true);
 }
