@@ -254,7 +254,7 @@ class type_dispatcher final {
   /// @param offset Item offset within word
   /// @return Unpacked value
   static inline constexpr unsigned_type extract_value(
-      std::uintmax_t* word_ptr, std::size_t offset) noexcept {
+      const std::uintmax_t* word_ptr, std::size_t offset) noexcept {
     auto w_bits = static_cast<unsigned_type>(*word_ptr >> offset) & value_mask;
 
     if constexpr (!t_is_signed) return w_bits;
